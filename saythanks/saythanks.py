@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+#!/usr/bin/env python
 import urllib
 import cookielib, urllib2
 import string
@@ -29,7 +30,7 @@ class myThread(threading.Thread):
 			if now > end: 
 				mylock.release()
 				break
-			body = {'id': i}
+			body = {'id': now}
 			response, content = http.request(posturl, 'POST', headers=headers, body=urllib.urlencode(body))
 			print 'No.%d\thas done' % now
 			now += 1
@@ -41,7 +42,7 @@ def getcook(set_cookie):
 	cookie = ''
 	for value in strlist:
 		cookie += value[:value.find('exp')]
-	f = open('cookie','w')
+	f = open('.cookie','w')
 	f.write(cookie)
 	f.close()
 	return cookie
@@ -67,13 +68,14 @@ def ifLogin(username, password):
 	response, content = http.request(loginurl, 'POST', headers=headers, body=urllib.urlencode(body))
 	if response['set-cookie']:
 		headers['Cookie'] = getcook(response['set-cookie'])
+		return True
 	else:
 		print "Error username or Error password!"
 		return False
 
 def getRange():
 	begin = raw_input('Enter begin with: ')
-	end = raw_input('Enter end with : ')
+	end   = raw_input('Enter end with  : ')
 	begin = int(begin)
 	end = int(end)
 	if begin <= 0:
@@ -82,10 +84,13 @@ def getRange():
 		end = begin
 	return begin, end
 
-def sayThx(begin, end):
+def sayThx():
 	thread1 = myThread()  
 	thread2 = myThread()
 	thread3 = myThread()
+	thread1.start()  
+	thread2.start()
+	thread3.start()
 
 def main():
 	username, password = getPasswd()
@@ -93,8 +98,6 @@ def main():
 		global now, end
 		now, end = getRange()
 		sayThx()
-	else:
-		return
 
 if __name__ == '__main__':
 	main()
