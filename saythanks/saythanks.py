@@ -13,21 +13,23 @@ opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
 import threading
 mylock = threading.RLock()
 
-now = 0
-end = 0
+#
+thread_num = 30
 
 loginurl = 'http://www.nexushd.org/takelogin.php'
 posturl = 'http://www.nexushd.org/thanks.php'
 
 class myThread(threading.Thread):  
-	def __init__(self):  
+	def __init__(self, begin, end):  
 		threading.Thread.__init__(self)
+		self.begin = begin
+		self.end = end
 		  
-	def run(self):  
-		global now, end
+	def run(self): 
+		now = self.begin
 		while True:  
 			mylock.acquire()
-			if now > end: 
+			if now > self.end: 
 				mylock.release()
 				break
 			body = {'id': now}
@@ -84,20 +86,18 @@ def getRange():
 		end = begin
 	return begin, end
 
-def sayThx():
-	thread1 = myThread()  
-	thread2 = myThread()
-	thread3 = myThread()
-	thread1.start()  
-	thread2.start()
-	thread3.start()
+def sayThx(begin, end):
+	global thread_num
+	avg = int( (end - begin) / thread_num )
+	for x in xrange(1, thread_num):
+		myThread(begin, begin + avg).start()
+		begin += avg
 
 def main():
 	username, password = getPasswd()
 	if ifLogin(username, password):
-		global now, end
-		now, end = getRange()
-		sayThx()
+		begin, end = getRange()
+		sayThx(begin, end)
 
 if __name__ == '__main__':
 	main()
