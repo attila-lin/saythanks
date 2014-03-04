@@ -34,7 +34,10 @@ class myThread(threading.Thread):
 				break
 			body = {'id': now}
 			response, content = http.request(posturl, 'POST', headers=headers, body=urllib.urlencode(body))
-			print 'No.%d\thas done' % now
+			if now > 9999:
+				print 'No.%d\thas done' % now
+			else:
+				print 'No.%dhas done' % now
 			now += 1
 			mylock.release()  
 
